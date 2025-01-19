@@ -19,6 +19,10 @@ def analyze_position(sf, fen, thread_best_moves, curr_thread):
     thread_best_moves[curr_thread] = (best_move, time_taken)
 
 
+def spawn_stockfish(sfs, curr_thread):
+    sfs[curr_thread] = Stockfish(path=os.getenv("STOCKFISH_PATH"))
+
+
 if __name__ == "__main__":
     load_dotenv()
 
@@ -35,15 +39,27 @@ if __name__ == "__main__":
             count += 1
 
     # Process each board
-    NUM_THREADS = 5
+    FACTOR = 20
+    NUM_THREADS = min(len(positions) // FACTOR, 20)
     posCount = 0
     results = []
     start = time.time()
-    sfs = [Stockfish(path=os.getenv("STOCKFISH_PATH")) for _ in range(NUM_THREADS)]
+    # Multithread spawning stockfish objects
+    sfs = [None] * NUM_THREADS
+    threads: list[threading.Thread] = []
+    for i in range(NUM_THREADS):
+        thread = threading.Thread(target=spawn_stockfish, args=[sfs, i])
+        threads.append(thread)
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
     end = time.time()
-    print(f"Time taken to create stockfish instances: {end - start} seconds")
+    print(
+        f"Time taken to create {NUM_THREADS} stockfish instances: {end - start} seconds"
+    )
     while posCount < len(positions):
-        threads: list[threading.Thread] = []
+        threads = []
         curr_thread = 0
         thread_best_moves = [("", 0)] * NUM_THREADS
         while posCount < len(positions) and curr_thread < NUM_THREADS:
