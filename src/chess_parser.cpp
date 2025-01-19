@@ -2,6 +2,7 @@
 #include "chess_board.h"
 #include "chess_color.h"
 #include "chess_piece.h"
+#include "chess_square_utils.h"
 #include <memory>
 #include <utility>
 #include <vector>
@@ -412,4 +413,88 @@ chess::Square Parser::convertIntIntoSquare(int squareInt) {
   int col(squareInt & 0b111);
   int square = row * 8 + col;
   return chess::Square(square);
+}
+
+chess::Move Parser::convertStringIntoMove(const string &moveStr,
+                                          const chess::Board &board) {
+  if (moveStr.size() < 4) {
+    cerr << "Invalid move string: " << moveStr << endl;
+    return chess::Move::make(chess::Square::underlying::NO_SQ,
+                             chess::Square::underlying::NO_SQ);
+  }
+
+  // String will be 2 squares and an additional promotion char
+  // If pawn promotes
+  string fromSquareStr(moveStr.substr(0, 2));
+  string toSquareStr(moveStr.substr(2, 4));
+  chess::Square fromSquare(convertStringIntoSquare(fromSquareStr));
+  chess::Square toSquare(convertStringIntoSquare(toSquareStr));
+  char promotionChar = 0;
+  if (moveStr.size() == 5) {
+    // Get pawn promotion char
+    promotionChar = moveStr.back();
+  }
+
+  if (promotionChar > 0) {
+    // Promotion move
+    chess::PieceType promotionPiece(convertCharIntoPieceType(promotionChar));
+    return chess::Move::make<chess::Move::PROMOTION>(fromSquare, toSquare,
+                                                     promotionPiece);
+  }
+
+  int squaredDistance(SquareUtils::getSquaredDistance(fromSquare, toSquare));
+
+  // To check for castling, check if the piece on the fromSquare is a king
+  // And the toSquare is at least one square length away from fromSquare
+  if (board.at(fromSquare).type() == chess::PieceType::KING &&
+      squaredDistance > 2) {
+    // Diagonal is 1 unit horizontal, 1 unit vertical
+    // Which is sqrt(2) distance, so we want > (sqrt(2))^2 = 2
+    return chess::Move::make<chess::Move::CASTLING>(fromSquare, toSquare);
+  }
+
+  // To check for en passant, check if the piece on fromSquare is a pawn
+  // And the toSquare is a diagonal square that is empty
+  if (board.at(fromSquare).type() == chess::PieceType::PAWN &&
+      squaredDistance == 2 &&
+      board.at(toSquare).type() == chess::PieceType::NONE) {
+    // If squaredDistance is 2, this must be a diagonal move
+    return chess::Move::make<chess::Move::ENPASSANT>(fromSquare, toSquare);
+  }
+
+  return chess::Move::make(fromSquare, toSquare);
+}
+
+chess::Square Parser::convertStringIntoSquare(const string &squareStr) {
+  if (squareStr.size() != 2) {
+    return chess::Square::underlying::NO_SQ;
+  }
+  char file = squareStr.front();
+  char rank = squareStr.back();
+  int row = rank - '1';
+  int col = file - 'a';
+  return chess::Square(row * 8 + col);
+}
+
+chess::PieceType Parser::convertCharIntoPieceType(char pieceTypeChar) {
+  switch (pieceTypeChar) {
+  case 'q':
+    return chess::PieceType::QUEEN;
+  case 'r':
+    return chess::PieceType::ROOK;
+  case 'b':
+    return chess::PieceType::BISHOP;
+  case 'k':
+    return chess::PieceType::KNIGHT;
+  default:
+    return chess::PieceType::NONE;
+  }
+}
+
+pair<int, int> Parser::getFromInfoInt(const chess::Move &move,
+                                      const chess::Board &board) {
+  const chess::Square &fromSquare(move.from());
+  const chess::PieceType &pieceType(board.at(fromSquare).type());
+  return make_pair(Parser::convertSquareIntoInt(fromSquare),
+                   Parser::convertPieceTypeIntoInt(pieceType));
 }

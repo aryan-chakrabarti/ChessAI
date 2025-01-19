@@ -1,2 +1,2 @@
-find . -name '*.data' -delete
-find . -name 'best_moves.txt' -delete
+find data -name '*.data' -delete
+find data -name 'best_moves.*' -delete

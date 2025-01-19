@@ -23,6 +23,15 @@ public:
   static void convertIntIntoPieceType(chess::PieceType &pieceType,
                                       int pieceInt);
   static chess::Square convertIntIntoSquare(int squareInt);
+  static chess::Move convertStringIntoMove(const string &moveStr,
+                                           const chess::Board &board);
+  static chess::Square convertStringIntoSquare(const string &squareStr);
+  static chess::PieceType convertCharIntoPieceType(char pieceTypeChar);
+  /*
+    Returns a pair (square, piece) in integer form.
+  */
+  static pair<int, int> getFromInfoInt(const chess::Move &move,
+                                       const chess::Board &board);
 };
 
 #endif

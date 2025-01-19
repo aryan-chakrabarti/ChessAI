@@ -2,6 +2,7 @@ from stockfish import Stockfish
 from dotenv import load_dotenv
 import os
 import time
+import subprocess
 
 
 def get_best_move(sf: Stockfish, fen_position: str):
@@ -14,26 +15,29 @@ def get_best_move(sf: Stockfish, fen_position: str):
 
 if __name__ == "__main__":
     load_dotenv()
+
     start = time.time()
     sf = Stockfish(path=os.getenv("STOCKFISH_PATH"))
     end = time.time()
     print(f"Time to load stockfish: {end - start} seconds")
+
+    subprocess.run(["mkdir", "-p", "data"])
+
     # Load all boards
     count = 0
-    with open("sample_games.fen") as f:
-        positions = []
+    with open("data/sample_games.fen") as f:
+        best_moves = []
+        times = []
         for fen_position in f.readlines():
-            positions.append(fen_position)
+            # Process each board
+            print(f"Processing board {count + 1}")
+            best_move, process_time = get_best_move(sf, fen_position)
+            times.append(process_time)
+            best_moves.append(best_move)
             count += 1
-    # Process each board
-    best_moves = []
-    times = []
-    for fen_position in positions:
-        best_move, process_time = get_best_move(sf, fen_position)
-        times.append(process_time)
-        best_moves.append(best_move)
+
     # Write moves to file
-    with open("best_moves.txt", "w") as f:
+    with open("data/best_moves.txt", "w") as f:
         for i in range(count):
             if i < count - 1:
                 f.write(f"{best_moves[i]}\n")

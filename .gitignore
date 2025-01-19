@@ -2,6 +2,6 @@ cmake/
 .vscode/
 build/
 .venv/
-*.data
+data/*.data
 .env
-best_moves.txt
+data/best_moves.*
