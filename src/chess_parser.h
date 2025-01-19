@@ -19,6 +19,10 @@ public:
                                 const chess::Board &board);
   static int convertPieceTypeIntoInt(const chess::PieceType &pieceType);
   static int convertSquareIntoInt(const chess::Square &square);
+  static chess::Move convertIntIntoMove(int moveInt);
+  static void convertIntIntoPieceType(chess::PieceType &pieceType,
+                                      int pieceInt);
+  static chess::Square convertIntIntoSquare(int squareInt);
 };
 
 #endif

@@ -185,22 +185,22 @@ int Parser::convertMoveIntoInt(const chess::Move &move,
 
   // Piece
   int pieceInt(convertPieceTypeIntoInt(piece.type()));
-  moveInt << 3;
+  moveInt <<= 3;
   moveInt |= pieceInt;
 
   // From square
   int fromSquareInt(convertSquareIntoInt(move.from()));
-  moveInt << 6;
+  moveInt <<= 6;
   moveInt |= fromSquareInt;
 
   // To square
   int toSquareInt(convertSquareIntoInt(move.to()));
-  moveInt << 6;
+  moveInt <<= 6;
   moveInt |= toSquareInt;
 
   // Is promotion
   bool isPromotion(move.typeOf() == move.PROMOTION);
-  moveInt << 1;
+  moveInt <<= 1;
   moveInt |= isPromotion;
 
   // Promotion piece
@@ -208,7 +208,7 @@ int Parser::convertMoveIntoInt(const chess::Move &move,
   if (isPromotion) {
     promotionPieceInt = convertPieceTypeIntoInt(move.promotionType());
   }
-  moveInt << 3;
+  moveInt <<= 3;
   moveInt |= promotionPieceInt;
 
   // Castle side
@@ -222,18 +222,18 @@ int Parser::convertMoveIntoInt(const chess::Move &move,
       castleSideInt = 1;
     }
   }
-  moveInt << 2;
+  moveInt <<= 2;
   moveInt |= castleSideInt;
 
   // En passant
   bool isEnPassant(move.typeOf() == move.ENPASSANT);
-  moveInt << 1;
+  moveInt <<= 1;
   moveInt |= isEnPassant;
 
   return moveInt;
 }
 
-void convertIntIntoMove(chess::Move &move, int moveInt) {
+chess::Move Parser::convertIntIntoMove(int moveInt) {
   // 8 parts of integer:
   // 1. Color (1 bit)
   // 2. Piece (3 bits)
@@ -253,33 +253,49 @@ void convertIntIntoMove(chess::Move &move, int moveInt) {
   const unsigned CASTLE_SIDE_BIT = 1;
   const unsigned EN_PASSANT_BIT = 0;
 
-  const unsigned NUM_COLOR_BITS = 1;
-  const unsigned NUM_PIECE_BITS = 3;
-  const unsigned NUM_SQUARE_BITS = 6;
-  const unsigned NUM_IS_PROMOTION_BITS = 1;
-  const unsigned NUM_PROMOTION_PIECE_BITS = 3;
-  const unsigned NUM_CASTLE_BITS = 2;
-  const unsigned NUM_EN_PASSANT_BITS = 1;
+  int colorMask(1 << COLOR_BIT);
+  int pieceMask(0b111 << PIECE_BIT);
+  int fromSquareMask(0b111111 << FROM_SQUARE_BIT);
+  int toSquareMask(0b111111 << TO_SQUARE_BIT);
+  int isPromotionMask(1 << IS_PROMOTION_BIT);
+  int promotionPieceMask(0b111 << PROMOTION_PIECE_BIT);
+  int castleSideMask(0b11 << CASTLE_SIDE_BIT);
+  int enPassantMask(1 << EN_PASSANT_BIT);
 
-  const unsigned BIT_LOCATIONS[8] = {
-      COLOR_BIT,        PIECE_BIT,           FROM_SQUARE_BIT, TO_SQUARE_BIT,
-      IS_PROMOTION_BIT, PROMOTION_PIECE_BIT, CASTLE_SIDE_BIT, EN_PASSANT_BIT};
+  // From Square
+  int fromSquareInt((moveInt & fromSquareMask) >> FROM_SQUARE_BIT);
+  chess::Square fromSquare(convertIntIntoSquare(fromSquareInt));
 
-  const unsigned BIT_SIZES[8] = {
-      NUM_COLOR_BITS,  NUM_PIECE_BITS,        NUM_SQUARE_BITS,
-      NUM_SQUARE_BITS, NUM_IS_PROMOTION_BITS, NUM_PROMOTION_PIECE_BITS,
-      NUM_CASTLE_BITS, NUM_EN_PASSANT_BITS};
+  // To Square
+  int toSquareInt((moveInt & toSquareMask) >> TO_SQUARE_BIT);
+  chess::Square toSquare(convertIntIntoSquare(toSquareInt));
 
-  int colorMask(1 << 22);
-  int pieceMask(0b111 << 19);
-  int fromSquareMask(0b111111 << 13);
-  int toSquareMask(0b111111 << 7);
-  int isPromotionMask(1 << 6);
-  int promotionPieceMask(0b111 << 3);
-  int casleSideMask(0b11 << 1);
-  int enPassantMask(1);
+  // Is Promotion
+  bool isPromotion((moveInt & isPromotionMask) >> IS_PROMOTION_BIT);
 
-  return;
+  // Promotion Piece
+  int promotionPieceInt((moveInt & promotionPieceMask) >> PROMOTION_PIECE_BIT);
+  chess::PieceType promotionPiece;
+  if (isPromotion) {
+    convertIntIntoPieceType(promotionPiece, promotionPieceInt);
+  }
+
+  // Castle side
+  int castleSideInt((moveInt & castleSideMask) >> CASTLE_SIDE_BIT);
+
+  // En Passant
+  bool enPassant((moveInt & enPassantMask) >> EN_PASSANT_BIT);
+
+  if (isPromotion) {
+    return chess::Move::make<chess::Move::PROMOTION>(fromSquare, toSquare,
+                                                     promotionPiece);
+  } else if (castleSideInt != 0) {
+    return chess::Move::make<chess::Move::CASTLING>(fromSquare, toSquare);
+  } else if (enPassant) {
+    return chess::Move::make<chess::Move::ENPASSANT>(fromSquare, toSquare);
+  } else {
+    return chess::Move::make(fromSquare, toSquare);
+  }
 }
 
 int Parser::convertPieceTypeIntoInt(const chess::PieceType &pieceType) {
@@ -328,7 +344,7 @@ int Parser::convertSquareIntoInt(const chess::Square &square) {
   }
 
   squareInt |= rankInt;
-  squareInt << 3;
+  squareInt <<= 3;
 
   const chess::File &file(square.file());
   int fileInt(-1);
@@ -357,4 +373,43 @@ int Parser::convertSquareIntoInt(const chess::Square &square) {
   squareInt |= fileInt;
 
   return squareInt;
+}
+
+void Parser::convertIntIntoPieceType(chess::PieceType &pieceType,
+                                     int pieceInt) {
+  if (pieceInt == 0) {
+    return;
+  }
+  switch (pieceInt) {
+  case 1:
+    pieceType = chess::PieceType::PAWN;
+    break;
+  case 2:
+    pieceType = chess::PieceType::KNIGHT;
+    break;
+  case 3:
+    pieceType = chess::PieceType::BISHOP;
+    break;
+  case 4:
+    pieceType = chess::PieceType::ROOK;
+    break;
+  case 5:
+    pieceType = chess::PieceType::QUEEN;
+    break;
+  case 6:
+    pieceType = chess::PieceType::KING;
+    break;
+  }
+  return;
+}
+
+chess::Square Parser::convertIntIntoSquare(int squareInt) {
+  if (squareInt == 0) {
+    return chess::Square(squareInt);
+  }
+  // First 3 bits are row/rank, last 3 bits are col/file
+  int row((squareInt & (0b111 << 3)) >> 3);
+  int col(squareInt & 0b111);
+  int square = row * 8 + col;
+  return chess::Square(square);
 }

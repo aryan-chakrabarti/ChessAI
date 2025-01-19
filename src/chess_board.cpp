@@ -24,7 +24,7 @@ ostream &operator<<(std::ostream &out, const Board &board) {
   }
   out << "Turn: " << (board.turn() == WHITE ? "White" : "Black") << "\n";
   out << "Castle Rights: " << static_cast<int>(board.castleRights()) << "\n";
-  out << "En passant: " << board.enPassant().row << ", "
+  out << "En passant: (" << board.enPassant().row << ", "
       << board.enPassant().col << ")"
       << "\n";
   return out;

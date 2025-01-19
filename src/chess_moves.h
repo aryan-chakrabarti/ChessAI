@@ -6,8 +6,10 @@
 #include <string>
 
 class Moves {
+public:
   static void getLegalMoves(chess::Movelist &moveList,
-                            const string &fen_notation);
+                            const chess::Board &board,
+                            const chess::Color &color = chess::Color::NONE);
 };
 
 #endif

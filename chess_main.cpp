@@ -15,14 +15,19 @@ int main(int argc, char **argv) {
   size_t count = 1;
   if (file.is_open()) {
     while (getline(file, line)) {
-      Board result;
-      Parser::translateFenNotation(result, line);
-      cout << "Chess board #" << count << ":" << result << endl;
+      chess::Board board(line);
+      Board dataBoard;
+      Parser::translateFenNotation(dataBoard, line);
+      cout << "Chess board #" << count << ":" << dataBoard << endl;
       chess::Movelist moveList;
-      getLegalMoves(moveList, line);
-      cout << "Legal moves:\n";
+      Moves::getLegalMoves(moveList, board, board.sideToMove());
+      vector<int> moveIntList;
+      cout << "Legal moves for " << board.sideToMove() << ":\n";
       for (size_t i(0); i < moveList.size(); i++) {
-        cout << moveList.at(i) << "\n";
+        const chess::Move &move(moveList.at(i));
+        int moveInt(Parser::convertMoveIntoInt(move, board));
+        moveIntList.emplace_back(moveInt);
+        cout << move << ", int form: " << moveInt << "\n";
       }
       cout << endl;
       count++;
