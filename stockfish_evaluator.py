@@ -39,12 +39,14 @@ if __name__ == "__main__":
             count += 1
 
     # Process each board
+
     FACTOR = 20
     NUM_THREADS = min(len(positions) // FACTOR, 10)
     posCount = 0
     results = []
-    start = time.time()
+
     # Multithread spawning stockfish objects
+    start = time.time()
     sfs = [None] * NUM_THREADS
     threads: list[threading.Thread] = []
     for i in range(NUM_THREADS):
@@ -55,9 +57,11 @@ if __name__ == "__main__":
     for thread in threads:
         thread.join()
     end = time.time()
+
     print(
         f"Time taken to create {NUM_THREADS} stockfish instances: {end - start} seconds"
     )
+
     while posCount < len(positions):
         threads = []
         curr_thread = 0
