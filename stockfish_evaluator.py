@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     # Process each board
     FACTOR = 20
-    NUM_THREADS = min(len(positions) // FACTOR, 20)
+    NUM_THREADS = min(len(positions) // FACTOR, 10)
     posCount = 0
     results = []
     start = time.time()
