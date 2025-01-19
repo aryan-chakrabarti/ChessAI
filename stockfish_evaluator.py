@@ -35,7 +35,7 @@ if __name__ == "__main__":
             count += 1
 
     # Process each board
-    NUM_THREADS = 2
+    NUM_THREADS = 5
     posCount = 0
     results = []
     start = time.time()
