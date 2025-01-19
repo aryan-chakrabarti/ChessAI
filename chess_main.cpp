@@ -30,6 +30,25 @@ int main(int argc, char **argv) {
         cout << move << ", int form: " << moveInt << "\n";
       }
       cout << endl;
+      ostringstream outputFileNameStream;
+      outputFileNameStream << "chessboard" << count << ".data";
+      string outputFileName(outputFileNameStream.str());
+      ofstream outputFile(outputFileName);
+      if (outputFile.is_open()) {
+        ostringstream outputFileDataStream;
+        ostringstream moveIntListStream;
+        for (size_t i(0); i < moveIntList.size(); i++) {
+          moveIntListStream << moveIntList.at(i);
+          if (i < moveIntList.size() - 1) {
+            moveIntListStream << " ";
+          }
+        }
+        string boardOutput(dataBoard.toString());
+        outputFileDataStream << boardOutput << "\n" << moveIntListStream.str();
+        const string &outputFileDataStr(outputFileDataStream.str());
+        outputFile.write(outputFileDataStr.c_str(), outputFileDataStr.size());
+        outputFile.close();
+      }
       count++;
     }
     file.close();

@@ -43,3 +43,20 @@ CastleRights &Board::castleRights() { return m_castleRights; }
 const Square &Board::enPassant() const { return m_enPassant; }
 
 Square &Board::enPassant() { return m_enPassant; }
+
+string Board::toString() const {
+  ostringstream outputString;
+  for (size_t i(0); i < m_board.size(); i++) {
+    const vector<int> &row(m_board.at(i));
+    for (size_t j(0); j < row.size(); j++) {
+      outputString << row.at(j);
+      if (j < row.size() - 1) {
+        outputString << "\t";
+      }
+    }
+    if (i < m_board.size() - 1) {
+      outputString << "\n";
+    }
+  }
+  return outputString.str();
+}

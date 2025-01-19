@@ -28,6 +28,7 @@ public:
   const Square &enPassant() const;
   Square &enPassant();
   friend ostream &operator<<(std::ostream &out, const Board &board);
+  string toString() const;
 };
 
 #endif
