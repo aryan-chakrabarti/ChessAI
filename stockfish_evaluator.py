@@ -40,8 +40,8 @@ if __name__ == "__main__":
 
     # Process each board
 
-    FACTOR = 20
-    NUM_THREADS = min(len(positions) // FACTOR, 10)
+    FACTOR = 50
+    NUM_THREADS = min(len(positions) // FACTOR, 15)
     posCount = 0
     results = []
 
