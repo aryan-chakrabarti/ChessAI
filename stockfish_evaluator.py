@@ -51,9 +51,8 @@ if __name__ == "__main__":
     threads: list[threading.Thread] = []
     for i in range(NUM_THREADS):
         thread = threading.Thread(target=spawn_stockfish, args=[sfs, i])
-        threads.append(thread)
-    for thread in threads:
         thread.start()
+        threads.append(thread)
     for thread in threads:
         thread.join()
     end = time.time()
@@ -76,14 +75,13 @@ if __name__ == "__main__":
                     curr_thread,
                 ],
             )
+            thread.start()
             threads.append(thread)
             posCount += 1
             curr_thread += 1
         for thread in threads:
-            thread.start()
-        for thread in threads:
             thread.join()
-        results.extend(thread_best_moves)
+        results.extend(thread_best_moves[:curr_thread])
     times = [result[1] for result in results]
     best_moves = [result[0] for result in results]
 
