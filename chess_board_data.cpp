@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-int main(int argc, char **argv) {
+void generateBoardAndMoveData() {
   const string STARTING_FEN_NOTATION =
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
   // Generate board for each FEN notation in file
@@ -51,5 +51,25 @@ int main(int argc, char **argv) {
   } else {
     cerr << "Error opening file." << endl;
   }
+}
+
+void generateStockFishData() {
+  ifstream file("best_moves.txt");
+  string line;
+  size_t count = 1;
+  if (file.is_open()) {
+    while (getline(file, line)) {
+      // Convert string into move
+      cout << line << endl;
+    }
+    file.close();
+  } else {
+    cerr << "Error opening file." << endl;
+  }
+}
+
+int main(int argc, char **argv) {
+  generateBoardAndMoveData();
+  generateStockFishData();
   return 0;
 }

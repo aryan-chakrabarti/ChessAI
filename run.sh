@@ -1,4 +1,3 @@
 bash clean_data.sh
-cmake/chessboardconverter
 python3 stockfish_evaluator.py
-cmake/chessstockfishmoveconverter
+cmake/chessdataconverter
