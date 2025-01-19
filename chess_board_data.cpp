@@ -18,18 +18,14 @@ int main(int argc, char **argv) {
       chess::Board board(line);
       Board dataBoard;
       Parser::translateFenNotation(dataBoard, line);
-      cout << "Chess board #" << count << ":" << dataBoard << endl;
       chess::Movelist moveList;
       Moves::getLegalMoves(moveList, board, board.sideToMove());
       vector<int> moveIntList;
-      cout << "Legal moves for " << board.sideToMove() << ":\n";
       for (size_t i(0); i < moveList.size(); i++) {
         const chess::Move &move(moveList.at(i));
         int moveInt(Parser::convertMoveIntoInt(move, board));
         moveIntList.emplace_back(moveInt);
-        cout << move << ", int form: " << moveInt << "\n";
       }
-      cout << endl;
       ostringstream outputFileNameStream;
       outputFileNameStream << "chessboard" << count << ".data";
       string outputFileName(outputFileNameStream.str());

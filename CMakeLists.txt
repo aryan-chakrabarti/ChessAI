@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "-O3")
 add_subdirectory("src")
 
 # Add executable target with source files listed in SOURCE_FILES variable
-add_executable(chessengine chess_main.cpp)
+add_executable(chessengine chess_board_data.cpp)
 
 target_include_directories(chessengine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(chessengine chessai)
