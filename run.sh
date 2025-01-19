@@ -1,1 +1,2 @@
 cmake/chessengine
+python3 stockfish_evaluator.py
