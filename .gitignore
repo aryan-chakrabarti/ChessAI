@@ -2,6 +2,7 @@ cmake/
 .vscode/
 build/
 .venv/
-data/*.data
+*.data
 .env
-data/best_moves.*
+*/best_moves.*
+*.csv
