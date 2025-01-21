@@ -1,2 +1,3 @@
 stockfish
 python-dotenv
+torch
