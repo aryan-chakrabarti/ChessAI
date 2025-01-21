@@ -61,27 +61,58 @@ if __name__ == "__main__":
         f"Time taken to create {NUM_THREADS} stockfish instances: {end - start} seconds"
     )
 
+    threads = []
+    thread_best_moves = [("", 0)] * NUM_THREADS
+    curr_thread = 0
+    while posCount < len(positions) and curr_thread < NUM_THREADS:
+        # Start initial threads
+        thread = threading.Thread(
+            target=analyze_position,
+            args=[
+                sfs[curr_thread],
+                positions[posCount],
+                thread_best_moves,
+                curr_thread,
+            ],
+        )
+        thread.start()
+        threads.append(thread)
+        curr_thread += 1
+        posCount += 1
+
+    curr_thread = 0
     while posCount < len(positions):
-        threads = []
-        curr_thread = 0
-        thread_best_moves = [("", 0)] * NUM_THREADS
-        while posCount < len(positions) and curr_thread < NUM_THREADS:
-            thread = threading.Thread(
-                target=analyze_position,
-                args=[
-                    sfs[curr_thread],
-                    positions[posCount],
-                    thread_best_moves,
-                    curr_thread,
-                ],
-            )
-            thread.start()
-            threads.append(thread)
-            posCount += 1
-            curr_thread += 1
-        for thread in threads:
-            thread.join()
+        # Start next thread as soon as first is done
+        threads[curr_thread].join()
+        results.append(thread_best_moves[curr_thread])
+        threads[curr_thread] = threading.Thread(
+            target=analyze_position,
+            args=[
+                sfs[curr_thread],
+                positions[posCount],
+                thread_best_moves,
+                curr_thread,
+            ],
+        )
+        threads[curr_thread].start()
+        curr_thread = (curr_thread + 1) % NUM_THREADS
+        posCount += 1
+
+    # Join remaining threads
+    for thread in threads:
+        thread.join()
+
+    if curr_thread == 0:
+        # This means we looped from the last thread
+        curr_thread = NUM_THREADS
+        results.extend(thread_best_moves[: min(curr_thread, posCount)])
+    else:
+        # First add threads that weren't changed in last loop
+        # (aka all threads w index  >= curr_thread)
+        results.extend(thread_best_moves[curr_thread:])
+        # Add rest of threads
         results.extend(thread_best_moves[:curr_thread])
+
     times = [result[1] for result in results]
     best_moves = [result[0] for result in results]
 
