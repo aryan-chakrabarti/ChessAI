@@ -55,7 +55,7 @@ class StartSquareModel(nn.Module):
         self.board_conv = nn.Conv2d(
             in_channels=1, out_channels=1, kernel_size=3, padding=1
         )
-        self.legal_moves_fc1 = nn.Linear(53, 21)
+        self.legal_moves_fc1 = nn.Linear(54, 21)
         self.legal_moves_fc2 = nn.Linear(21, 8)
         self.board_attention = nn.MultiheadAttention(embed_dim=8, num_heads=4)
         self.moves_attention = nn.MultiheadAttention(embed_dim=21, num_heads=3)

@@ -11,7 +11,7 @@ def train_model(model, inputs, targets):
     boards = inputs[0]
     all_legal_moves = inputs[1]
     # Training loop (simplified)
-    for epoch in range(20):
+    for epoch in range(25):
         running_loss = 0
         running_accuracy = 0
         i = 0
