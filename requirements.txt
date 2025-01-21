@@ -1,3 +1,4 @@
 stockfish
 python-dotenv
 torch
+numpy<2

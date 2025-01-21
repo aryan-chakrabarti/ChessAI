@@ -6,3 +6,4 @@ build/
 .env
 */best_moves.*
 *.csv
+__pycache__/
